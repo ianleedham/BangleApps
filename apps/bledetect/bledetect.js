@@ -29,10 +29,22 @@ function showDeviceInfo(device){
   return E.showMenu(deviceMenu);
 }
 
+function save(deviceIds){
+  var date = new Date();
+  const dateStr = `${date.getDate()}-${date.getMonth()}-${date.getHours()}-${date.getMinutes()}`;
+  var file = require("Storage").open(`recognisedBTIds-${dateStr}.csv`,"a");
+  deviceIds.forEach(id => {
+    file.write(id+"\n");
+  });
+  console.log(`saved file recognisedBTIds-${dateStr} with ${deviceIds.length} bluetooth ids`);
+}
+
 function scan() {
+  deviceIds = [];
   menu = {
     "": { "title": "BLE Detector" },
-    "RE-SCAN":  () => scan()
+    "RE-SCAN":  () => scan(),
+    "save": () => save(deviceIds)
   };
 
   waitMessage();
@@ -44,11 +56,11 @@ function scan() {
       if (device.name) {
         deviceName = device.name;
       }
-
+      deviceIds.push(device.id);
       menu[deviceName] = () => showDeviceInfo(device);
     });
     showMainMenu(menu);
-  }, { active: true });
+  }, 5000);
 }
 
 function waitMessage() {
