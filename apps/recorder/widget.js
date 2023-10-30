@@ -37,10 +37,17 @@
           name : "GPS",
           fields : ["Latitude","Longitude","Altitude"],
           getValues : () => {
+            hasFix = false;
+            Bangle.on('GPS', onGPS);
+            Bangle.setGPSPower(1,"recorder");
             var r = ["","",""];
             if (samples)
               r = [(lat/samples).toFixed(6),(lon/samples).toFixed(6),Math.round(alt/samples)];
             samples = 0; lat = 0; lon = 0; alt = 0;
+
+            hasFix = false;
+            Bangle.removeListener('GPS', onGPS);
+            Bangle.setGPSPower(0,"recorder");
             return r;
           },
           start : () => {
@@ -215,7 +222,7 @@
       }
       // start recording...
       WIDGETS["recorder"].draw();
-      writeInterval = setInterval(writeLog, settings.period*1000);
+      writeInterval = setInterval(writeLog, 10*60*1000);
     } else {
       WIDGETS["recorder"].width = 0;
       storageFile = undefined;
